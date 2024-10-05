@@ -1,7 +1,9 @@
 from flask import Flask, request, jsonify
 from cultura.enum import VeryHighSusceptibility, HighSusceptibility, MediumSusceptibility, LowSusceptibility, VeryLowSusceptibility
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)  # Habilita CORS para todas as rotas
 
 def get_susceptibility(culture):
     if culture in VeryHighSusceptibility.__members__.keys():
