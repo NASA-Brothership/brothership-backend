@@ -1,2 +1,3 @@
 flask
 earthengine-api
+flask-cors
