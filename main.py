@@ -1,6 +1,5 @@
 from flask import Flask, request, jsonify
 from cultura.enum import VeryHighSusceptibility, HighSusceptibility, MediumSusceptibility, LowSusceptibility, VeryLowSusceptibility
-from google_earth_engine.init_engine import GoogleEarthInterface
 
 app = Flask(__name__)
 
