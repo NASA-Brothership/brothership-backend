@@ -4,7 +4,6 @@ from google_earth_engine.init_engine import GoogleEartnInterface
 
 
 app = Flask(__name__)
-google = GoogleEartnInterface()
 
 
 def get_susceptibility(culture):
