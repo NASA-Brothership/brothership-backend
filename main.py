@@ -1,10 +1,7 @@
 from flask import Flask, request, jsonify
-from cultura.enum import MuitoAltaSusceptibilidade, AltaSusceptibilidade, MediaSusceptibilidade, BaixaSusceptibilidade, MuitoBaixaSusceptibilidade
-from google_earth_engine.init_engine import GoogleEartnInterface
-
+from crops.enum import MuitoAltaSusceptibilidade, AltaSusceptibilidade, MediaSusceptibilidade, BaixaSusceptibilidade, MuitoBaixaSusceptibilidade
 
 app = Flask(__name__)
-
 
 def get_susceptibility(culture):
     if culture in MuitoAltaSusceptibilidade.__members__.keys():
@@ -18,13 +15,13 @@ def get_susceptibility(culture):
     if culture in MuitoBaixaSusceptibilidade.__members__.keys():
         return VERY_LOW
 
-@app.route("/dry-analysis", methods=["POST"])
+@app.route("/drought-analysis", methods=["POST"])
 def dry_analysis():
     data_input = {
         "culture": request.json.get('culture'),
         "latitude": request.json.get('latitude'),
         "longitude": request.json.get('longitude'),
-        "radio_km": request.json.get('radio_km'),                   # raio em kilometros do circulo
+        "radio_km": request.json.get('radius_km'),                  # raio em kilometros do circulo
         "irrigation": request.json.get('irrigation'),               # "Tem irrigação ou capacidade de investir em uma?"
         "planting_period": request.json.get('planting_period'),     # "Estamos antes, durante ou depois o período ideal de plantio?"
         "existing_culture": request.json.get('existing_culture')    # "Já tem cultura plantada no momento?"
@@ -46,6 +43,4 @@ if __name__ == "__main__":
     LOW = 0.3
     VERY_LOW = 0.1
 
-    
-    
     app.run(host="0.0.0.0", port=8000, debug=True)
