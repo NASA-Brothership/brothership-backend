@@ -1,21 +1,19 @@
 from flask import Flask, request, jsonify
-from cultura.enum import MuitoAltaSusceptibilidade, AltaSusceptibilidade, MediaSusceptibilidade, BaixaSusceptibilidade, MuitoBaixaSusceptibilidade
-from google_earth_engine.init_engine import GoogleEartnInterface
-
+from cultura.enum import VeryHighSusceptibility, HighSusceptibility, MediumSusceptibility, LowSusceptibility, VeryLowSusceptibility
+from google_earth_engine.init_engine import GoogleEarthInterface
 
 app = Flask(__name__)
 
-
 def get_susceptibility(culture):
-    if culture in MuitoAltaSusceptibilidade.__members__.keys():
+    if culture in VeryHighSusceptibility.__members__.keys():
         return VERY_HIGH
-    if culture in AltaSusceptibilidade.__members__.keys():
+    if culture in HighSusceptibility.__members__.keys():
         return HIGH
-    if culture in MediaSusceptibilidade.__members__.keys():
+    if culture in MediumSusceptibility.__members__.keys():
         return MEDIUM
-    if culture in BaixaSusceptibilidade.__members__.keys():
+    if culture in LowSusceptibility.__members__.keys():
         return LOW
-    if culture in MuitoBaixaSusceptibilidade.__members__.keys():
+    if culture in VeryLowSusceptibility.__members__.keys():
         return VERY_LOW
 
 @app.route("/dry-analysis", methods=["POST"])
@@ -24,18 +22,18 @@ def dry_analysis():
         "culture": request.json.get('culture'),
         "latitude": request.json.get('latitude'),
         "longitude": request.json.get('longitude'),
-        "radio_km": request.json.get('radio_km'),                   # raio em kilometros do circulo
-        "irrigation": request.json.get('irrigation'),               # "Tem irrigação ou capacidade de investir em uma?"
-        "planting_period": request.json.get('planting_period'),     # "Estamos antes, durante ou depois o período ideal de plantio?"
-        "existing_culture": request.json.get('existing_culture')    # "Já tem cultura plantada no momento?"
+        "radius_km": request.json.get('radius_km'),               # radius in kilometers of the circle
+        "irrigation": request.json.get('irrigation'),             # "Does it have irrigation or the capacity to invest in one?"
+        "planting_period": request.json.get('planting_period'),   # "Are we before, during, or after the ideal planting period?"
+        "existing_culture": request.json.get('existing_culture')  # "Is there already a culture planted at the moment?"
     }
     susceptibility = get_susceptibility(data_input['culture'])
     output = {
-        "susceptibility": susceptibility,   # Nota da Suscetibilidade da cultura => 1 ALTA | 0.66 MEDIA | 0.33 BAIXA
-        "wbi_medium": 0,                    # Balanço Hídrico
-        "sb": 0,                            # SB Balanço Hídrico
-        "ndmi_medium": 0,                   # UMIDADE
-        "su": 0                             # SU Umidade
+        "susceptibility": susceptibility,   # Susceptibility rating of the culture => 1 HIGH | 0.66 MEDIUM | 0.33 LOW
+        "wbi_medium": 0,                    # Water Balance Index
+        "sb": 0,                            # SB Water Balance
+        "ndmi_medium": 0,                   # MOISTURE
+        "su": 0                             # SU Moisture
     }
     return jsonify(output)
 
@@ -46,6 +44,4 @@ if __name__ == "__main__":
     LOW = 0.3
     VERY_LOW = 0.1
 
-    
-    
     app.run(host="0.0.0.0", port=8000, debug=True)
