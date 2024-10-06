@@ -26,12 +26,12 @@ class MeteomaticsAPI:
         else:
             raise Exception(f"Erro ao obter o token: {response.status_code} - {response.text}")
 
-    def get_weather(self, latitude: float, longitude: float, date_time: datetime.datetime):
+    def get_precipitation(self, latitude: float, longitude: float, date_time: datetime.datetime):
         if not self.token:
             self.get_token()
 
         formatted_time = date_time.strftime('%Y-%m-%dT%H:%M:%SZ')
-        weather_url = f"{self.api_url}/{formatted_time}/t_2m:C/{latitude},{longitude}/json"
+        weather_url = f"{self.api_url}/{formatted_time}/precip_24h:mm/{latitude},{longitude}/json"
 
         # Faz a requisição da previsão do tempo
         response = requests.get(
@@ -54,10 +54,10 @@ if __name__ == "__main__":
     
     latitude = 52.520551
     longitude = 13.461804
-    date_time = datetime.datetime(2024, 10, 6, 0, 0, 0)
+    date_time = datetime.datetime.now()
 
     try:
-        weather_data = api.get_weather(latitude, longitude, date_time)
+        weather_data = api.get_precipitation(latitude, longitude, date_time)
         print(weather_data)
     except Exception as e:
         print(str(e))
