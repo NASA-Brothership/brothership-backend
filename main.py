@@ -15,7 +15,7 @@ CORS(app)  # Enable CORS for all routes
 
 @app.route('/plants', methods=['GET'])
 def get_plants():
-    return jsonify(plants.all_plants)
+    return jsonify(list(plants.all_plants))
 
 # Function to get drought risk category for a crop
 def get_drought_risk(crop: str) -> DroughtRisk:
