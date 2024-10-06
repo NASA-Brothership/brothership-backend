@@ -1,37 +1,37 @@
 from flask import Flask, request, jsonify
-
-from crops.enum import VeryHighSusceptibility, HighSusceptibility, MediumSusceptibility, LowSusceptibility, VeryLowSusceptibility
 from flask_cors import CORS
 
-app = Flask(__name__)
-CORS(app)  # Habilita CORS para todas as rotas
+from crops.enum import VeryHighSusceptibility, HighSusceptibility, MediumSusceptibility, LowSusceptibility, VeryLowSusceptibility
 
-def get_susceptibility(culture):
-    if culture in VeryHighSusceptibility.__members__.keys():
+app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
+
+def get_susceptibility(crop):
+    if crop in VeryHighSusceptibility.__members__.keys():
         return VERY_HIGH
-    if culture in HighSusceptibility.__members__.keys():
+    if crop in HighSusceptibility.__members__.keys():
         return HIGH
-    if culture in MediumSusceptibility.__members__.keys():
+    if crop in MediumSusceptibility.__members__.keys():
         return MEDIUM
-    if culture in LowSusceptibility.__members__.keys():
+    if crop in LowSusceptibility.__members__.keys():
         return LOW
-    if culture in VeryLowSusceptibility.__members__.keys():
+    if crop in VeryLowSusceptibility.__members__.keys():
         return VERY_LOW
 
 @app.route("/drought-analysis", methods=["POST"])
 def dry_analysis():
     data_input = {
-        "crop": request.json.get('crop'),
+        "crop_type": request.json.get('crop_type'),
         "latitude": request.json.get('latitude'),
         "longitude": request.json.get('longitude'),
         "radius_km": request.json.get('radius_km'),               # radius in kilometers of the circle
-        "irrigation": request.json.get('irrigation'),             # "Does it have irrigation or the capacity to invest in one?"
+        "is_irrigated": request.json.get('is_irrigated'),             # "Does it have irrigation or the capacity to invest in one?"
         "planting_period": request.json.get('planting_period'),   # "Are we before, during, or after the ideal planting period?"
-        "existing_culture": request.json.get('existing_culture')  # "Is there already a culture planted at the moment?"
+        "existing_crops": request.json.get('existing_crops')  # "Is there already a crop planted at the moment?"
     }
-    susceptibility = get_susceptibility(data_input['culture'])
+    susceptibility = get_susceptibility(data_input['crop_type'])
     output = {
-        "susceptibility": susceptibility,   # Susceptibility rating of the culture => 1 HIGH | 0.66 MEDIUM | 0.33 LOW
+        "susceptibility": susceptibility,   # Susceptibility rating of the crop => 1 HIGH | 0.66 MEDIUM | 0.33 LOW
         "wbi_medium": 0,                    # Water Balance Index
         "sb": 0,                            # SB Water Balance
         "ndmi_medium": 0,                   # MOISTURE

@@ -4,6 +4,9 @@ WORKDIR /app
 
 COPY requirements.txt .
 
+RUN pip cache purge
+
+# Install all dependencies from requirements.txt and show installed packages for debugging
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
