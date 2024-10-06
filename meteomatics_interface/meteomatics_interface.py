@@ -50,8 +50,8 @@ class MeteomaticsInterface:
         if not self.token:
             self._get_token()
 
-        start_datetime = start.strftime('%Y-%m-%dT%H:%M:%SZ')
-        end_datetime = start.strftime('%Y-%m-%dT%H:%M:%SZ')
+        start_datetime = start_datetime.strftime('%Y-%m-%dT%H:%M:%SZ')
+        end_datetime = end_datetime.strftime('%Y-%m-%dT%H:%M:%SZ')
         url = f"{self.api_url}/{start_datetime}--{end_datetime}:P1D/precip_24h:mm/{latitude},{longitude}/json?model=mix"
 
         # Faz a requisição da previsão do tempo
@@ -67,6 +67,18 @@ class MeteomaticsInterface:
         else:
             raise Exception(f"Erro ao obter os dados do tempo: {response.status_code} - {response.text}")
 
+    def get_precipitation_mean(self, data):
+        # Extrair a lista de coordenadas e os valores de precipitação
+        coordenadas = data['data'][0]['coordinates'][0]['dates']
+        
+        # Extrair os valores de precipitação
+        valores_precipitacao = [item['value'] for item in coordenadas]
+        
+        # Calcular a média
+        media_precipitacao = sum(valores_precipitacao) / len(valores_precipitacao)
+        
+        return media_precipitacao
+
 if __name__ == "__main__":
     username = "sonoda_gustavoshoiti"
     password = "5P6Kmg1ktI"
@@ -80,6 +92,6 @@ if __name__ == "__main__":
 
     try:
         weather_data = api.get_precipitation_days(latitude, longitude, start, end)
-        print(weather_data)
+        precipitation_mean = api.get_precipitation_mean(weather_data)
     except Exception as e:
         print(str(e))
