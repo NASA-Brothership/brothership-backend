@@ -1,25 +1,40 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+from crops.code_enums import (
+    VeryLowDroughtRisk,
+    LowDroughtRisk,
+    MediumDroughtRisk,
+    HighDroughtRisk,
+    VeryHighDroughtRisk,
+    DroughtRisk
+)
 
-from crops.enum import VeryHighSusceptibility, HighSusceptibility, MediumSusceptibility, LowSusceptibility, VeryLowSusceptibility
+from flask import (
+    Flask,
+    request,
+    jsonify
+)
+from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
-def get_susceptibility(crop):
-    if crop in VeryHighSusceptibility.__members__.keys():
-        return VERY_HIGH
-    if crop in HighSusceptibility.__members__.keys():
-        return HIGH
-    if crop in MediumSusceptibility.__members__.keys():
-        return MEDIUM
-    if crop in LowSusceptibility.__members__.keys():
-        return LOW
-    if crop in VeryLowSusceptibility.__members__.keys():
-        return VERY_LOW
+# Function to get drought risk category for a crop
+def get_drought_risk(crop: str):
+    # Check for crop in each drought risk category
+    if crop in VeryHighDroughtRisk.__members__.keys():
+        return DroughtRisk.VERY_HIGH
+    elif crop in HighDroughtRisk.__members__.keys():
+        return DroughtRisk.HIGH
+    elif crop in MediumDroughtRisk.__members__.keys():
+        return DroughtRisk.MEDIUM
+    elif crop in LowDroughtRisk.__members__.keys():
+        return DroughtRisk.LOW
+    elif crop in VeryLowDroughtRisk.__members__.keys():
+        return DroughtRisk.VERY_LOW
+    else:
+        return None  # Return None if crop is not found in any category
 
 @app.route("/drought-analysis", methods=["POST"])
-def dry_analysis():
+def drought_analysis():
     data_input = {
         "crop_type": request.json.get('crop_type'),
         "latitude": request.json.get('latitude'),
@@ -29,21 +44,11 @@ def dry_analysis():
         "planting_period": request.json.get('planting_period'),   # "Are we before, during, or after the ideal planting period?"
         "existing_crops": request.json.get('existing_crops')  # "Is there already a crop planted at the moment?"
     }
-    susceptibility = get_susceptibility(data_input['crop_type'])
+    drought_risk = get_drought_risk(data_input['crop_type'])
     output = {
-        "susceptibility": susceptibility,   # Susceptibility rating of the crop => 1 HIGH | 0.66 MEDIUM | 0.33 LOW
-        "wbi_medium": 0,                    # Water Balance Index
-        "sb": 0,                            # SB Water Balance
-        "ndmi_medium": 0,                   # MOISTURE
-        "su": 0                             # SU Moisture
+        "drought_risk": drought_risk.value # drought_risk rating of the crop
     }
     return jsonify(output)
 
 if __name__ == "__main__":
-    VERY_HIGH = 0.9
-    HIGH = 0.7
-    MEDIUM = 0.5
-    LOW = 0.3
-    VERY_LOW = 0.1
-
     app.run(host="0.0.0.0", port=8000, debug=True)
