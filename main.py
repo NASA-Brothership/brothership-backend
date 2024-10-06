@@ -17,6 +17,8 @@ def get_susceptibility(culture):
     if culture in VeryLowSusceptibility.__members__.keys():
         return VERY_LOW
 
+
+# TO DO: Use Google Engine para medir wbi_medium e ndmi_medium
 @app.route("/dry-analysis", methods=["POST"])
 def dry_analysis():
     data_input = {
