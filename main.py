@@ -1,11 +1,7 @@
 from crops.code_enums import (
-    VeryLowDroughtRisk,
-    LowDroughtRisk,
-    MediumDroughtRisk,
-    HighDroughtRisk,
-    VeryHighDroughtRisk,
     DroughtRisk
 )
+import crops.plants as plants
 
 from flask import (
     Flask,
@@ -17,21 +13,25 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
+@app.route('/plants', methods=['GET'])
+def get_plants():
+    return jsonify(plants.all_plants)
+
 # Function to get drought risk category for a crop
-def get_drought_risk(crop: str):
+def get_drought_risk(crop: str) -> DroughtRisk:
     # Check for crop in each drought risk category
-    if crop in VeryHighDroughtRisk.__members__.keys():
-        return DroughtRisk.VERY_HIGH
-    elif crop in HighDroughtRisk.__members__.keys():
-        return DroughtRisk.HIGH
-    elif crop in MediumDroughtRisk.__members__.keys():
-        return DroughtRisk.MEDIUM
-    elif crop in LowDroughtRisk.__members__.keys():
-        return DroughtRisk.LOW
-    elif crop in VeryLowDroughtRisk.__members__.keys():
+    print(crop)
+    if crop in plants.very_low_drought_risk:
         return DroughtRisk.VERY_LOW
-    else:
-        return None  # Return None if crop is not found in any category
+    elif crop in plants.low_drought_risk:
+        return DroughtRisk.LOW
+    elif crop in plants.medium_drought_risk:
+        return DroughtRisk.MEDIUM
+    elif crop in plants.high_drought_risk:
+        return DroughtRisk.HIGH
+    elif crop in plants.very_high_drought_risk:
+        return DroughtRisk.VERY_HIGH
+
 
 @app.route("/drought-analysis", methods=["POST"])
 def drought_analysis():
@@ -44,6 +44,7 @@ def drought_analysis():
         "planting_period": request.json.get('planting_period'),   # "Are we before, during, or after the ideal planting period?"
         "existing_crops": request.json.get('existing_crops')  # "Is there already a crop planted at the moment?"
     }
+    app.logger.debug(data_input['crop_type'])
     drought_risk = get_drought_risk(data_input['crop_type'])
     output = {
         "drought_risk": drought_risk.value # drought_risk rating of the crop
