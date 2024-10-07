@@ -1,7 +1,34 @@
+import datetime
 import crops.plants as plants
 from crops.code_enums import (
-    DroughtRisk, DroughtRiskValues, Recomendation, PlantingPeriod
+    DroughtRiskValues, Recomendation, PlantingPeriod
 )
+from meteomatics_interface.meteomatics_interface import MeteomaticsInterface
+
+username = "sonoda_gustavoshoiti"
+password = "5P6Kmg1ktI"
+
+# sucetibilidade do previsão de chuvas (quanto maior, maior probabilidade de perdas na procução)
+def get_spt(latitude, longitude):
+    start = datetime.datetime.now()
+    end = start + datetime.timedelta(days=14)
+    api = MeteomaticsInterface(username, password)
+
+    weather_data = api.get_precipitation_days(latitude, longitude, start, end)
+    precipitation_sum = api.get_precipitation_sum(weather_data)
+
+    if precipitation_sum <= 10:
+        spt = DroughtRiskValues.VERY_HIGH
+    elif precipitation_sum > 10 and precipitation_sum < 30:
+        spt = DroughtRiskValues.HIGH
+    elif precipitation_sum > 30 and precipitation_sum < 60:
+        spt = DroughtRiskValues.HIGH
+    elif precipitation_sum > 60 and precipitation_sum < 90:
+        spt = DroughtRiskValues.LOW
+    elif precipitation_sum > 90:
+        spt = DroughtRiskValues.VERY_LOW
+
+    return precipitation_sum, spt
 
 # Function to get drought risk category for a crop
 def get_drought_risk(crop: str) -> DroughtRiskValues:
