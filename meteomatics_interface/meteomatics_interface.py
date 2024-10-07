@@ -67,7 +67,7 @@ class MeteomaticsInterface:
         else:
             raise Exception(f"Erro ao obter os dados do tempo: {response.status_code} - {response.text}")
 
-    def get_precipitation_mean(self, data):
+    def get_precipitation_sum(self, data):
         # Extrair a lista de coordenadas e os valores de precipitação
         coordenadas = data['data'][0]['coordinates'][0]['dates']
         
@@ -75,9 +75,9 @@ class MeteomaticsInterface:
         valores_precipitacao = [item['value'] for item in coordenadas]
         
         # Calcular a média
-        media_precipitacao = sum(valores_precipitacao) / len(valores_precipitacao)
+        precipitation = sum(valores_precipitacao)
         
-        return media_precipitacao
+        return precipitation
 
 if __name__ == "__main__":
     username = "sonoda_gustavoshoiti"
@@ -92,6 +92,6 @@ if __name__ == "__main__":
 
     try:
         weather_data = api.get_precipitation_days(latitude, longitude, start, end)
-        precipitation_mean = api.get_precipitation_mean(weather_data)
+        precipitation_mean = api.get_precipitation_sum(weather_data)
     except Exception as e:
         print(str(e))
