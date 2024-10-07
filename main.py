@@ -1,8 +1,6 @@
 import datetime
 import crops.plants as plants
-from crops.code_enums import (
-    DroughtRisk
-)
+from crops.code_enums import DroughtRiskValues
 from flask import (
     Flask,
     request,
@@ -10,27 +8,13 @@ from flask import (
 )
 from flask_cors import CORS
 from meteomatics_interface.meteomatics_interface import MeteomaticsInterface
+from utils.risk import get_drought_risk, get_mean_risk, get_recomendation
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
 username = "sonoda_gustavoshoiti"
 password = "5P6Kmg1ktI"
-
-# Function to get drought risk category for a crop
-def get_drought_risk(crop: str) -> DroughtRisk:
-    # Check for crop in each drought risk category
-    print(crop)
-    if crop in plants.very_low_drought_risk:
-        return DroughtRisk.VERY_LOW
-    elif crop in plants.low_drought_risk:
-        return DroughtRisk.LOW
-    elif crop in plants.medium_drought_risk:
-        return DroughtRisk.MEDIUM
-    elif crop in plants.high_drought_risk:
-        return DroughtRisk.HIGH
-    elif crop in plants.very_high_drought_risk:
-        return DroughtRisk.VERY_HIGH
 
 @app.route('/plants', methods=['GET'])
 def get_plants():
@@ -56,13 +40,31 @@ def drought_analysis():
 
     try:
         weather_data = api.get_precipitation_days(data_input['latitude'], data_input['longitude'], start, end)
-        precipitation_mean = api.get_precipitation_mean(weather_data)
+        precipitation_sum = api.get_precipitation_sum(weather_data)
     except Exception as e:
         print(str(e))
-        
+    
+    sc = DroughtRiskValues.VERY_LOW.value     # sucetibilidade da cultura (quanto maior, maior probabilidade de perdas na procução)
+    su = DroughtRiskValues.VERY_LOW.value     # sucetibilidade da umidade (quanto maior, maior probabilidade de perdas na procução)
+    sb = DroughtRiskValues.VERY_LOW.value     # sucetibilidade do balanço hidrigo (quanto maior, maior probabilidade de perdas na procução)
+    spt = DroughtRiskValues.VERY_LOW.value    # sucetibilidade do previsão de chuvas (quanto maior, maior probabilidade de perdas na procução)
+
+    mean_risk = get_mean_risk(sc, su, sb, spt)
+    recomandation = get_recomendation(
+                                mean_risk, 
+                                data_input['is_irrigated'], 
+                                data_input['planting_period'],
+                                data_input['existing_crops']
+                                )
+
     output = {
         "drought_risk": drought_risk.value, # drought_risk rating of the crop
-        "precipitation_mean": precipitation_mean
+        "precipitation_mean": precipitation_sum,
+        "sc": sc,
+        "su": su,
+        "sb": sb,
+        "spt": spt,
+        "recomentation": recomandation
     }
     return jsonify(output)
 
