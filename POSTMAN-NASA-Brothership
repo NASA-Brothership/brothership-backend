@@ -1,0 +1,198 @@
+{
+	"info": {
+		"_postman_id": "7bbb8c37-873d-4858-8efa-2b419a7fb395",
+		"name": "Dry-Analisis",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38812064"
+	},
+	"item": [
+		{
+			"name": "BACKEND - plants",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"culture\": \"CORN\",\r\n  \"latitude\": -23.5505,\r\n  \"longitude\": -46.6333,\r\n  \"radio_km\": 1,\r\n  \"irrigation\": \"yes\",\r\n  \"planting_period\": \"BEFORE\",\r\n  \"existing_culture\": \"yes\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/plants",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"plants"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "BACKEND - dry-anality",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"crop_type\": \"Fennel\",\r\n  \"latitude\": -22.822532,\r\n  \"longitude\": -47.070475,\r\n  \"radius_km\": 1,\r\n  \"is_irrigated\": \"no\",\r\n  \"planting_period\": \"AFTER\",\r\n  \"existing_crops\": \"no\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/drought-analysis",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"drought-analysis"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Meteomatics - get token",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"access_token\", JSON.parse(responseBody).access_token);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "5P6Kmg1ktI",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "sonoda_gustavoshoiti",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://login.meteomatics.com/api/v1/token",
+					"protocol": "https",
+					"host": [
+						"login",
+						"meteomatics",
+						"com"
+					],
+					"path": [
+						"api",
+						"v1",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Meteomatics - get temp",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://api.meteomatics.com/2024-10-06T00:00:00Z/t_2m:C/52.520551,13.461804/json",
+					"protocol": "https",
+					"host": [
+						"api",
+						"meteomatics",
+						"com"
+					],
+					"path": [
+						"2024-10-06T00:00:00Z",
+						"t_2m:C",
+						"52.520551,13.461804",
+						"json"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Meteomatics - get precip_24h",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://api.meteomatics.com/2024-10-06T17:55:00.000-03:00--2024-10-19T17:55:00.000-03:00:P1D/precip_24h:mm/-22.822656,-47.0627959/json?model=mix",
+					"protocol": "https",
+					"host": [
+						"api",
+						"meteomatics",
+						"com"
+					],
+					"path": [
+						"2024-10-06T17:55:00.000-03:00--2024-10-19T17:55:00.000-03:00:P1D",
+						"precip_24h:mm",
+						"-22.822656,-47.0627959",
+						"json"
+					],
+					"query": [
+						{
+							"key": "model",
+							"value": "mix"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
